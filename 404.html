@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Diadoku: a friend challenges you</title>
+  <meta name="description" content="Same board, who's faster? Race your friend's time in Diadoku. Free on iPhone and iPad.">
+  <meta property="og:title" content="A friend challenges you in Diadoku">
+  <meta property="og:description" content="Same board, who's faster?">
+  <meta property="og:image" content="https://diadoku.com/assets/og.jpg?v=15">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/styles.css?v=3">
+  <style>
+    /* A challenge by link (diadoku.com/d/CODE) for whoever has no app yet;
+       every other unknown address gets the plain "not found". GitHub Pages
+       serves this page for any path it does not know. */
+    .challenge { display: flex; flex-direction: column; align-items: center; gap: 16px; min-height: 100svh;
+      padding: 28px 20px 16px; text-align: center; }
+    .challenge .icon { border-radius: 22%; box-shadow: 0 10px 24px var(--shadow); }
+    .card { width: min(100%, 380px); padding: 22px 20px; border-radius: 28px; background: var(--cream);
+      border: 1px solid var(--edge); box-shadow: 0 18px 40px var(--shadow); }
+    .eyebrow { margin: 0 0 6px; font-family: var(--rounded); font-weight: 900; font-size: 12px; letter-spacing: .18em;
+      color: var(--gold); }
+    .card h1 { margin: 0; font-family: var(--rounded); font-weight: 900; font-size: clamp(24px, 7vw, 30px); line-height: 1.15; }
+    .lead { margin: 10px 0 4px; font-size: 16px; line-height: 1.4; color: var(--muted); }
+    .time { margin: 4px 0 14px; font-family: var(--rounded); font-weight: 900; font-size: 46px; color: var(--gold);
+      font-variant-numeric: tabular-nums; }
+    .time::before { content: "⏱ "; font-size: 32px; }
+    .cta { display: block; padding: 18px 20px; border-radius: 18px; text-decoration: none; color: var(--on-gold);
+      background: linear-gradient(180deg, var(--gold-light), var(--gold-soft)); font-family: var(--rounded);
+      font-weight: 900; font-size: 19px; letter-spacing: .04em; box-shadow: 0 10px 22px var(--shadow); }
+    .open { display: block; margin-top: 10px; padding: 13px 16px; border-radius: 16px; text-decoration: none;
+      color: var(--ink); border: 1px solid var(--edge); font-family: var(--rounded); font-weight: 800; font-size: 15px; }
+    .steps { margin: 18px 0 0; padding: 0; list-style: none; text-align: left; }
+    .steps li { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; font-size: 14px; line-height: 1.4;
+      color: var(--muted); }
+    .steps b { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--gold-soft); color: var(--on-gold); font-family: var(--rounded); font-weight: 900; font-size: 13px; }
+    .code { font-family: var(--rounded); font-weight: 900; letter-spacing: .12em; color: var(--ink); }
+    .challenge-footer { display: flex; justify-content: center; gap: 18px; padding: 0 20px 28px; font-size: 13px;
+      color: var(--muted); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="challenge">
+    <a href="/"><img class="icon" src="/assets/icon-256.png" width="88" height="88" alt="Diadoku"></a>
+
+    <section class="card" id="found" hidden>
+      <p class="eyebrow" data-t="eyebrow">CHALLENGE</p>
+      <h1 id="title"></h1>
+      <p class="lead" id="lead"></p>
+      <p class="time" id="time"></p>
+      <a class="cta" id="store" href="https://apps.apple.com/app/apple-store/id6808338155?pt=129407361&amp;ct=challenge-link&amp;mt=8" data-t="store">FREE ON THE APP STORE</a>
+      <a class="open" id="open" href="diadoku://d/" data-t="open">Already have Diadoku? Open the challenge</a>
+      <ol class="steps">
+        <li><b>1</b><span data-t="step1">Get Diadoku</span></li>
+        <li><b>2</b><span id="step2"></span></li>
+        <li><b>3</b><span id="step3"></span></li>
+      </ol>
+    </section>
+
+    <section class="card" id="gone" hidden>
+      <h1 data-t="goneTitle">This challenge is no longer available</h1>
+      <p class="lead" data-t="goneLead">Get Diadoku and challenge your friends yourself.</p>
+      <a class="cta" href="https://apps.apple.com/app/apple-store/id6808338155?pt=129407361&amp;ct=challenge-link&amp;mt=8" data-t="store">FREE ON THE APP STORE</a>
+    </section>
+
+    <section class="card" id="missing" hidden>
+      <h1 data-t="missingTitle">Page not found</h1>
+      <p class="lead"><a href="/" data-t="home">To diadoku.com</a></p>
+    </section>
+  </main>
+  <footer class="challenge-footer">
+    <a href="https://www.ogulcanserbest.com/imprint.html">Imprint</a>
+    <a href="https://www.ogulcanserbest.com/privacy.html">Privacy</a>
+  </footer>
+
+  <script>
+    // The words of the page in the app's languages; English for any other.
+    const words = {
+      en: { eyebrow: "CHALLENGE", title: n => `${n} challenges you`, friend: "A friend",
+            duel: s => `Beat this time on the same ${s}×${s} board:`, daily: s => `Beat this time on the daily puzzle, ${s}×${s}:`,
+            store: "FREE ON THE APP STORE", open: "Already have Diadoku? Open the challenge", step1: "Get Diadoku",
+            step2: n => `Tap this link again: the duel against ${n} starts right away`,
+            step3: c => `Or in the app, tap “Got a code from a friend?” under Duel and enter: <span class="code">${c}</span>`,
+            goneTitle: "This challenge is no longer available", goneLead: "Get Diadoku and challenge your friends yourself.",
+            missingTitle: "Page not found", home: "To diadoku.com" },
+      de: { eyebrow: "HERAUSFORDERUNG", title: n => `${n} fordert dich heraus`, friend: "Ein Freund",
+            duel: s => `Schlag diese Zeit auf demselben ${s}×${s}-Brett:`, daily: s => `Schlag diese Zeit im Tagesrätsel, ${s}×${s}:`,
+            store: "KOSTENLOS IM APP STORE", open: "Diadoku schon installiert? Herausforderung öffnen", step1: "Diadoku laden",
+            step2: n => `Diesen Link nochmal antippen: das Duell gegen ${n} startet sofort`,
+            step3: c => `Oder in der App unter Duell auf „Code von einem Freund?“ tippen und eingeben: <span class="code">${c}</span>`,
+            goneTitle: "Diese Herausforderung gibt es nicht mehr", goneLead: "Hol dir Diadoku und fordere deine Freunde selbst heraus.",
+            missingTitle: "Seite nicht gefunden", home: "Zu diadoku.com" },
+      es: { eyebrow: "RETO", title: n => `${n} te reta`, friend: "Un amigo",
+            duel: s => `Supera este tiempo en el mismo tablero de ${s}×${s}:`, daily: s => `Supera este tiempo en el reto diario, ${s}×${s}:`,
+            store: "GRATIS EN EL APP STORE", open: "¿Ya tienes Diadoku? Abre el reto", step1: "Descarga Diadoku",
+            step2: n => `Vuelve a tocar este enlace: el duelo contra ${n} empieza enseguida`,
+            step3: c => `O en la app, en Duelo, toca «¿Tienes un código de un amigo?» e introduce: <span class="code">${c}</span>`,
+            goneTitle: "Este reto ya no está disponible", goneLead: "Descarga Diadoku y reta tú a tus amigos.",
+            missingTitle: "Página no encontrada", home: "Ir a diadoku.com" },
+      fr: { eyebrow: "DÉFI", title: n => `${n} te défie`, friend: "Un ami",
+            duel: s => `Bats ce temps sur la même grille ${s}×${s} :`, daily: s => `Bats ce temps sur le défi du jour, ${s}×${s} :`,
+            store: "GRATUIT SUR L'APP STORE", open: "Tu as déjà Diadoku ? Ouvre le défi", step1: "Télécharge Diadoku",
+            step2: n => `Touche à nouveau ce lien : le duel contre ${n} commence tout de suite`,
+            step3: c => `Ou dans l'app, sous Duel, touche « Un code d'un ami ? » et saisis : <span class="code">${c}</span>`,
+            goneTitle: "Ce défi n'est plus disponible", goneLead: "Télécharge Diadoku et défie tes amis toi-même.",
+            missingTitle: "Page introuvable", home: "Vers diadoku.com" },
+      it: { eyebrow: "SFIDA", title: n => `${n} ti sfida`, friend: "Un amico",
+            duel: s => `Batti questo tempo sullo stesso schema ${s}×${s}:`, daily: s => `Batti questo tempo nella sfida del giorno, ${s}×${s}:`,
+            store: "GRATIS SULL'APP STORE", open: "Hai già Diadoku? Apri la sfida", step1: "Scarica Diadoku",
+            step2: n => `Tocca di nuovo questo link: il duello contro ${n} parte subito`,
+            step3: c => `Oppure nell'app, in Duello, tocca «Hai un codice da un amico?» e inserisci: <span class="code">${c}</span>`,
+            goneTitle: "Questa sfida non è più disponibile", goneLead: "Scarica Diadoku e sfida tu i tuoi amici.",
+            missingTitle: "Pagina non trovata", home: "Vai a diadoku.com" },
+      ja: { eyebrow: "チャレンジ", title: n => `${n}から挑戦状`, friend: "フレンド",
+            duel: s => `同じ${s}×${s}の盤面でこのタイムを超えよう：`, daily: s => `デイリーパズル（${s}×${s}）でこのタイムを超えよう：`,
+            store: "App Storeで無料ダウンロード", open: "Diadokuをお持ちの方はチャレンジを開く", step1: "Diadokuをダウンロード",
+            step2: n => `このリンクをもう一度タップすると、${n}とのデュエルがすぐ始まります`,
+            step3: c => `またはアプリのデュエルで「フレンドのコードがある？」をタップして入力：<span class="code">${c}</span>`,
+            goneTitle: "このチャレンジはもう利用できません", goneLead: "Diadokuをダウンロードして、フレンドに挑戦しよう。",
+            missingTitle: "ページが見つかりません", home: "diadoku.comへ" },
+      pt: { eyebrow: "DESAFIO", title: n => `${n} desafia você`, friend: "Um amigo",
+            duel: s => `Bata este tempo no mesmo tabuleiro ${s}×${s}:`, daily: s => `Bata este tempo no desafio diário, ${s}×${s}:`,
+            store: "GRÁTIS NA APP STORE", open: "Já tem o Diadoku? Abra o desafio", step1: "Baixe o Diadoku",
+            step2: n => `Toque neste link de novo: o duelo contra ${n} começa na hora`,
+            step3: c => `Ou no app, em Duelo, toque em “Recebeu um código de um amigo?” e digite: <span class="code">${c}</span>`,
+            goneTitle: "Este desafio não está mais disponível", goneLead: "Baixe o Diadoku e desafie seus amigos você mesmo.",
+            missingTitle: "Página não encontrada", home: "Ir para diadoku.com" },
+    };
+    const lang = (navigator.language || "en").slice(0, 2);
+    const w = words[lang] || words.en;
+    document.documentElement.lang = lang in words ? lang : "en";
+    for (const el of document.querySelectorAll("[data-t]")) {
+      const text = w[el.dataset.t];
+      if (typeof text === "string") el.textContent = text;
+    }
+    const escape = t => t.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const show = id => { document.getElementById(id).hidden = false; };
+
+    // Same rules as the app (ChallengeLink): five characters, no 0/O or 1/I.
+    const match = location.pathname.match(/^\/d\/([23456789A-HJ-NP-Za-hj-np-z]{5})\/?$/);
+    if (!match) {
+      show("missing");
+    } else {
+      const code = match[1].toUpperCase();
+      // The league's public key, the same the app ships with: it can only call the league's functions.
+      fetch("https://rgcenfjepjyrcjfymspe.supabase.co/rest/v1/rpc/challenge_view", {
+        method: "POST",
+        headers: { "apikey": "sb_publishable_nQy9_RgorSuEt9ZrQMF5ZA_qwCmJCck", "Content-Type": "application/json" },
+        body: JSON.stringify({ p_code: code }),
+      })
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null)
+        .then(c => {
+          if (!c || c.expired) { show("gone"); return; }
+          document.getElementById("title").textContent = w.title(c.name || w.friend);
+          document.getElementById("lead").textContent = (c.kind === "daily" ? w.daily : w.duel)(c.size);
+          const s = Math.round((c.time_ms || 0) / 1000);
+          document.getElementById("time").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+          document.getElementById("open").href = `diadoku://d/${code}`;
+          document.getElementById("step2").innerHTML = escape(w.step2(c.name || w.friend));
+          document.getElementById("step3").innerHTML = w.step3(code);
+          document.title = `Diadoku: ${w.title(c.name || w.friend)}`;
+          show("found");
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["C87Y53986V.com.ogulcanserbest.diadoku"],
+        "components": [
+          { "/": "/d/*", "comment": "A friend's challenge: the same board as a ghost duel" }
+        ]
+      }
+    ]
+  }
+}

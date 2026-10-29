@@ -40,5 +40,14 @@
     <a href="https://www.ogulcanserbest.com/imprint.html">Imprint</a>
     <a href="https://www.ogulcanserbest.com/privacy.html">Privacy</a>
   </footer>
+  <script>
+    // Pass the ad group's ct (e.g. ?ct=fb-ads-en-b) on to the App Store link; anything else keeps fb-ads-en.
+    (function () {
+      var ct = new URLSearchParams(location.search).get('ct');
+      if (!ct || !/^fb-ads-en(-[a-z0-9]{1,12})?$/.test(ct)) return;
+      var link = document.querySelector('.landing');
+      link.href = link.href.replace('ct=fb-ads-en', 'ct=' + ct);
+    })();
+  </script>
 </body>
 </html>

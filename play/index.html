@@ -9,36 +9,74 @@
   <meta name="description" content="Race an opponent on the same logic puzzle. One diamond per row, column and color. Free on iPhone and iPad.">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="preload" as="image" href="/assets/play/gem.webp">
   <link rel="stylesheet" href="/styles.css?v=3">
   <style>
     .landing {
       display: flex; flex-direction: column; align-items: center; gap: 12px;
-      min-height: 100svh; padding: 16px 20px 16px; text-align: center; text-decoration: none;
+      min-height: 100svh; padding: 16px 20px 16px; text-align: center;
     }
     .landing h1 { margin: 0; font-family: var(--rounded); font-weight: 900; font-size: clamp(22px, 6.2vw, 34px); line-height: 1.15; }
-    .landing .clip {
-      display: block; width: min(72%, 280px); height: auto; border-radius: 22px; background: #f4efe9;
-      box-shadow: 0 14px 32px var(--shadow); pointer-events: none;
+    .tip {
+      display: flex; align-items: center; justify-content: center; margin: 0; max-width: 34ch; min-height: 2.7em;
+      font-family: var(--rounded); font-weight: 700; font-size: 16px; line-height: 1.3; color: #5c4522;
     }
-    .landing .cta {
-      display: flex; align-items: center; justify-content: center; gap: 12px; width: min(100%, 360px); padding: 15px 24px; border-radius: 18px;
-      background: #000; color: #fff; box-shadow: 0 12px 28px rgb(0 0 0 / 24%);
+    .tip.wrong { color: #b5322f; }
+    .tip.done { color: #8a5f16; }
+    .board {
+      --gap: clamp(4px, 1.3vw, 6px);
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--gap);
+      width: min(84vw, 340px, 46svh); aspect-ratio: 1; padding: var(--gap); box-sizing: border-box;
+      background: #fff; border-radius: 20px; box-shadow: 0 14px 32px var(--shadow);
+      touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
     }
-    .landing .cta svg { width: 34px; height: 34px; fill: #fff; flex: none; }
-    .landing .cta span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
-    .landing .cta small { font-family: var(--sans); font-weight: 500; font-size: 13px; opacity: .85; }
-    .landing .cta strong { font-family: var(--rounded); font-weight: 900; font-size: 25px; }
-    .landing .lead { margin: 0; max-width: 32ch; font-size: 15px; line-height: 1.4; color: var(--muted); }
+    .cell {
+      position: relative; appearance: none; margin: 0; padding: 0; border: 0; border-radius: 9%; cursor: pointer;
+      background: var(--c); touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: filter .12s ease;
+    }
+    .cell:focus-visible { outline: 3px solid #2b2117; outline-offset: 1px; }
+    .cell svg, .cell img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .cell svg { opacity: 0; transform: scale(.7); transition: opacity .14s ease, transform .14s ease; }
+    .cell.x svg { opacity: .92; transform: none; }
+    .cell img { inset: 9%; width: 82%; height: 82%; object-fit: contain; filter: drop-shadow(0 2px 3px rgb(80 50 0 / 35%)); animation: land .28s cubic-bezier(.2, 1.5, .4, 1); }
+    .cell.glow { animation: glow 1.2s ease-in-out infinite; z-index: 1; }
+    .cell.shake { animation: shake .32s ease; }
+    .board.solved .cell img { animation: shine .7s ease calc(var(--i) * 90ms); }
+    @keyframes land { from { transform: scale(.3); opacity: 0; } }
+    @keyframes glow { 50% { box-shadow: 0 0 0 4px #ffd466, 0 0 18px 6px rgb(255 200 80 / 75%); } }
+    @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    @keyframes shine { 50% { transform: scale(1.22); filter: brightness(1.25) drop-shadow(0 0 8px rgb(255 214 110 / 90%)); } }
+    .landing .clip { display: block; width: min(72%, 280px); height: auto; border-radius: 22px; box-shadow: 0 14px 32px var(--shadow); }
+    .cta {
+      display: flex; align-items: center; justify-content: center; gap: 12px; width: min(100%, 360px); box-sizing: border-box; padding: 13px 24px; border-radius: 18px;
+      background: #000; color: #fff; text-decoration: none; box-shadow: 0 12px 28px rgb(0 0 0 / 24%);
+    }
+    .cta svg { width: 34px; height: 34px; fill: #fff; flex: none; }
+    .cta span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+    .cta small { font-family: var(--sans); font-weight: 500; font-size: 13px; opacity: .85; }
+    .cta strong { font-family: var(--rounded); font-weight: 900; font-size: 25px; }
+    .cta.ready { animation: ready 1.4s ease-in-out infinite; }
+    @keyframes ready { 50% { transform: scale(1.035); box-shadow: 0 14px 34px rgb(0 0 0 / 34%), 0 0 0 4px #ffd466; } }
+    .lead { margin: 0; font-size: 15px; line-height: 1.4; color: var(--muted); }
     .landing-footer { display: flex; justify-content: center; gap: 18px; padding: 0 20px 28px; font-size: 13px; color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) {
+      .cell, .cell svg, .cell img, .cell.glow, .cell.shake, .board.solved .cell img, .cta.ready { animation: none; transition: none; }
+      .cell.glow { box-shadow: 0 0 0 4px #ffd466; }
+    }
   </style>
 </head>
 <body>
-  <a class="landing" href="https://apps.apple.com/app/apple-store/id6808338155?pt=129407361&amp;ct=fb-ads-en&amp;mt=8">
+  <main class="landing">
     <h1>Same puzzle. One opponent.<br>Who's faster?</h1>
-    <img class="clip" src="/assets/play/duel-loop.webp" width="560" height="784" alt="A duel on the same board, won at the last diamond">
-    <span class="cta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 12.8c0-2.3 1.9-3.4 2-3.5a4.3 4.3 0 0 0-3.4-1.8c-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8a4.5 4.5 0 0 0-3.8 2.3c-1.6 2.8-.4 6.9 1.1 9.2.8 1.1 1.6 2.3 2.7 2.2 1.1 0 1.5-.7 2.9-.7s1.8.7 3 .7 2-1.1 2.7-2.3a10 10 0 0 0 1.2-2.5 4 4 0 0 1-2-3.6ZM14.4 6a4.2 4.2 0 0 0 1-3 4.3 4.3 0 0 0-2.8 1.5 4 4 0 0 0-1 2.9 3.6 3.6 0 0 0 2.8-1.4Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span></span>
-    <p class="lead">Free on iPhone and iPad. One diamond per row, column and color.</p>
-  </a>
+    <p class="tip" id="tip" role="status" aria-live="polite">Purple has just one cell. Tap it twice.</p>
+    <div class="board" id="board" role="group" aria-label="A small Diadoku board to try"></div>
+    <noscript><img class="clip" src="/assets/play/duel-loop.webp" width="560" height="784" alt="A duel on the same board, won at the last diamond"></noscript>
+    <a class="cta" href="https://apps.apple.com/app/apple-store/id6808338155?pt=129407361&amp;ct=fb-ads-en&amp;mt=8">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 12.8c0-2.3 1.9-3.4 2-3.5a4.3 4.3 0 0 0-3.4-1.8c-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8a4.5 4.5 0 0 0-3.8 2.3c-1.6 2.8-.4 6.9 1.1 9.2.8 1.1 1.6 2.3 2.7 2.2 1.1 0 1.5-.7 2.9-.7s1.8.7 3 .7 2-1.1 2.7-2.3a10 10 0 0 0 1.2-2.5 4 4 0 0 1-2-3.6ZM14.4 6a4.2 4.2 0 0 0 1-3 4.3 4.3 0 0 0-2.8 1.5 4 4 0 0 0-1 2.9 3.6 3.6 0 0 0 2.8-1.4Z"/></svg>
+      <span><small>Download on the</small><strong>App Store</strong></span>
+    </a>
+    <p class="lead">Free on iPhone and iPad.</p>
+  </main>
   <footer class="landing-footer">
     <a href="https://www.ogulcanserbest.com/imprint.html">Imprint</a>
     <a href="https://www.ogulcanserbest.com/privacy.html">Privacy</a>
@@ -48,8 +86,162 @@
     (function () {
       var ct = new URLSearchParams(location.search).get('ct');
       if (!ct || !/^fb-ads-en(-[a-z0-9]{1,12})?$/.test(ct)) return;
-      var link = document.querySelector('.landing');
+      var link = document.querySelector('.cta');
       link.href = link.href.replace('ct=fb-ads-en', 'ct=' + ct);
+    })();
+
+    // A real 5x5 board of the game with exactly one solution, every step of it forced once the X marks are in.
+    // Like in the app one tap marks an X and two quick taps place a diamond. Nothing is stored or sent.
+    (function () {
+      var REGIONS = [
+        [1, 1, 0, 2, 2],
+        [1, 1, 2, 2, 2],
+        [3, 2, 2, 2, 2],
+        [3, 3, 3, 2, 2],
+        [3, 3, 3, 4, 2]
+      ];
+      var SOLUTION = [2, 0, 4, 1, 3];        // the column of the diamond in each row
+      var COLORS = ['#a67dd9', '#4ac4bf', '#e67aab', '#5c82d9', '#ed7347'];
+      var NAMES = ['purple', 'teal', 'pink', 'blue', 'orange'];
+      var ORDER = [[0, 2], [4, 3], [1, 0], [3, 1], [2, 4]];   // the order a player finds them in, for the hint
+      var DOUBLE_TAP = 350, HINT_AFTER = 6000;
+
+      var board = document.getElementById('board');
+      var tip = document.getElementById('tip');
+      var cells = [], lastTap = {}, placed = 0, started = 0, hintTimer = 0, tapTimer = 0;
+      var X = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 30 70 70M70 30 30 70" stroke="#fff" stroke-width="10" stroke-linecap="round"/></svg>';
+
+      function cell(r, c) { return cells[r][c]; }
+      function isDiamond(el) { return el.classList.contains('gem'); }
+
+      function say(text, kind) {
+        tip.textContent = text;
+        tip.className = 'tip' + (kind ? ' ' + kind : '');
+      }
+
+      function describe(r, c) {
+        var el = cell(r, c);
+        var state = isDiamond(el) ? 'diamond' : el.classList.contains('x') ? 'marked with an X' : 'empty';
+        el.setAttribute('aria-label', 'Row ' + (r + 1) + ', column ' + (c + 1) + ', ' + NAMES[REGIONS[r][c]] + ', ' + state);
+      }
+
+      function setX(r, c, on) {
+        var el = cell(r, c);
+        if (isDiamond(el)) return;
+        el.classList.toggle('x', on);
+        describe(r, c);
+      }
+
+      function clearHint() {
+        clearTimeout(hintTimer);
+        board.querySelectorAll('.glow').forEach(function (e) { e.classList.remove('glow'); });
+      }
+
+      function nextTarget() {
+        for (var i = 0; i < ORDER.length; i++) {
+          if (!isDiamond(cell(ORDER[i][0], ORDER[i][1]))) return ORDER[i];
+        }
+        return null;
+      }
+
+      function showHint() {
+        var t = nextTarget();
+        if (t) cell(t[0], t[1]).classList.add('glow');
+      }
+
+      function hintLater() {
+        clearHint();
+        hintTimer = setTimeout(showHint, HINT_AFTER);
+      }
+
+      function placeGem(r, c) {
+        var el = cell(r, c);
+        el.classList.remove('x', 'glow');
+        el.classList.add('gem');
+        el.style.setProperty('--i', placed);
+        var img = new Image();
+        img.src = '/assets/play/gem.webp';
+        img.alt = '';
+        el.appendChild(img);
+        describe(r, c);
+        // rule out its row, its column, its color and every cell around it
+        for (var a = 0; a < 5; a++) {
+          for (var b = 0; b < 5; b++) {
+            var same = a === r || b === c || REGIONS[a][b] === REGIONS[r][c];
+            var near = Math.abs(a - r) <= 1 && Math.abs(b - c) <= 1;
+            if ((same || near) && !(a === r && b === c)) setX(a, b, true);
+          }
+        }
+        placed++;
+      }
+
+      function finish() {
+        clearHint();
+        board.classList.add('solved');
+        var s = Math.max(1, Math.round((Date.now() - started) / 1000));
+        var time = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+        say('Solved in ' + time + '! Now race someone on the same board.', 'done');
+        document.querySelector('.cta').classList.add('ready');
+      }
+
+      function onDiamond(r, c) {
+        var el = cell(r, c);
+        if (SOLUTION[r] !== c) {
+          setX(r, c, true);
+          el.classList.remove('shake');
+          void el.offsetWidth;
+          el.classList.add('shake');
+          say('Not there. Look for a color with one free cell.', 'wrong');
+          clearHint();
+          showHint();
+          return;
+        }
+        placeGem(r, c);
+        if (placed === 5) return finish();
+        if (placed === 1 && !isDiamond(cell(4, 3))) say('Its row, column and neighbors are out. Orange has one cell too.');
+        else if (placed === 4) say('One more.');
+        else say('One diamond per row, column and color. Keep going.');
+        hintLater();
+      }
+
+      function onTap(r, c) {
+        var el = cell(r, c);
+        if (isDiamond(el) || placed === 5) return;
+        if (!started) started = Date.now();
+        var key = r * 5 + c, now = Date.now();
+        clearTimeout(tapTimer);
+        if (lastTap[key] && now - lastTap[key] < DOUBLE_TAP) {
+          lastTap[key] = 0;
+          el.classList.remove('x');
+          onDiamond(r, c);
+          return;
+        }
+        lastTap[key] = now;
+        setX(r, c, !el.classList.contains('x'));
+        if (placed === 0) {
+          tapTimer = setTimeout(function () {
+            if (placed === 0 && el.classList.contains('x')) say('Tap twice, quickly. One tap only marks an X.');
+          }, DOUBLE_TAP + 30);
+        } else {
+          hintLater();
+        }
+      }
+
+      for (var r = 0; r < 5; r++) {
+        cells.push([]);
+        for (var c = 0; c < 5; c++) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'cell';
+          b.style.setProperty('--c', COLORS[REGIONS[r][c]]);
+          b.innerHTML = X;
+          b.addEventListener('click', onTap.bind(null, r, c));
+          board.appendChild(b);
+          cells[r].push(b);
+          describe(r, c);
+        }
+      }
+      showHint();
     })();
   </script>
 </body>
